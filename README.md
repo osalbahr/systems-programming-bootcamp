@@ -1,2 +1,19 @@
 # systems-programming-bootcamp
 Systems programming bootcamp | معسكر هندسة الأنظمة
+
+## Projects
+
+#### Project 1: Football Match
+
+Source code: [football-match.py](project/01/football-match.py)
+
+Description: Protocol to "unpack" a 2-byte representation of a football match using binary masks and bit shifts.
+
+Example:
+
+```console
+% ./football-match.py D420
+As part of the Crown Prince league, Abha is scheduled to play against Ahli on Ahli's home.
+The appointed referee is foreign.
+Abha won!
+```

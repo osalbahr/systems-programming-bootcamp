@@ -27,7 +27,7 @@ if whose_field == 0:
 else:
     field_name = team_2_name
 
-print(f"As part of {leagues[league]}, {team_1_name} was scheduled to play against {team_2_name} on {field_name}'s home.")
+print(f"As part of the {leagues[league]} league, {team_1_name} is scheduled to play against {team_2_name} on {field_name}'s home.")
 
 if referee_nationality == 0:
     print("The appointed referee is local.")
