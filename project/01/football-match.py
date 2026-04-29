@@ -19,6 +19,11 @@ whose_field = (data & (0b1 << 12)) >> 12
 league = (data & (0b11 << 13)) >> 13
 referee_nationality = (data & (0b1 << 14)) >> 14
 
+# Check team id is correct
+if team_1_id >= len(teams) or team_2_id >= len(teams):
+    print("Invalid team number.")
+    sys.exit(1)
+
 team_1_name = teams[team_1_id % len(teams)]
 team_2_name = teams[team_2_id % len(teams)]
 
