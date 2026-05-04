@@ -1,5 +1,5 @@
 # systems-programming-bootcamp
-Systems programming bootcamp | معسكر هندسة الأنظمة
+Systems Engineering and Programming bootcamp | معسكر هندسة الأنظمة والبرمجة
 
 ## Projects
 
