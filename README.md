@@ -1,6 +1,9 @@
 # systems-programming-bootcamp
 Systems Engineering and Programming bootcamp | معسكر هندسة الأنظمة والبرمجة
 
+Tuwaiq Academy | أكاديمية طويق
+April 2026 - October 2026
+
 ## Projects
 
 #### Project 1: Football Match
