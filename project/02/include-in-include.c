@@ -1,7 +1,7 @@
 #include <stdio.h>
 
 #define RUN_A
-// #define RUN_B
+#define RUN_B
 
 int main()
 {
