@@ -1,5 +1,19 @@
 #include <stdio.h>
 
+unsigned int byte_pack( unsigned char a,
+                        unsigned char b,
+                        unsigned char c,
+                        unsigned char d)
+{
+    unsigned int result = 0;
+    result |= a;
+    result |= b << 8;
+    result |= c << (8 * 2);
+    result |= d << (8 * 3);
+
+    return result;
+}
+
 int compare_nybble(unsigned char value)
 {
     /*
@@ -35,7 +49,12 @@ int main()
         puts("EVEN");
     }
 
+    /* compare nybble */
     printf("0xFF -> %d\n", compare_nybble(0xFF));
     printf("0x1C -> %d\n", compare_nybble(0x1C));
     printf("0xE2 -> %d\n", compare_nybble(0xE2));
+
+    /* pack */
+    unsigned int packed = byte_pack(0x12, 0x34, 0x56, 0x78);
+    printf("Packed = 0x%x\n", packed);
 }
