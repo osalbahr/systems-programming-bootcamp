@@ -44,3 +44,16 @@ result = 0
 result = 2
 result = 4
 ```
+
+### Project 3: Read into Heap
+
+Source code: [read-into-heap.c](project/03/read-into-heap.c)
+
+Description: Write binary data (initials and age) to a file, read into heap-allocated memory, and output the info.
+
+Example:
+
+```console
+% ./read-into-heap 
+Initials = OA, Age = 99
+```
