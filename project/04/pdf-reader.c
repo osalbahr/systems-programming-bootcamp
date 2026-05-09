@@ -9,9 +9,9 @@ typedef struct PDF_Info {
     int page_count;
 } PDF_Info;
 
-PDF_Info read_pdf_info(char *filename)
+PDF_Info *read_pdf_info(char *filename)
 {
-    PDF_Info info;
+    PDF_Info *info = (PDF_Info *)malloc(sizeof(PDF_Info));
 
     FILE *fp = fopen(filename, "rb");
     if (!fp) {
@@ -20,10 +20,10 @@ PDF_Info read_pdf_info(char *filename)
     }
 
     for (int i = 0; i < 5; i++) {
-        info.magic_code[i] = getc(fp);
+        info->magic_code[i] = getc(fp);
     }
 
-    fscanf(fp, "%d.%d", &info.major_version, &info.minor_version);
+    fscanf(fp, "%d.%d", &info->major_version, &info->minor_version);
 
     for (;;) {
         if (getc(fp) == 'C') {
@@ -31,7 +31,7 @@ PDF_Info read_pdf_info(char *filename)
                 if (getc(fp) == 'u') {
                     if (getc(fp) == 'n') {
                         if (getc(fp) == 't') {
-                            fscanf(fp, "%d", &info.page_count);
+                            fscanf(fp, "%d", &info->page_count);
                             break;
                         }
                     }
@@ -54,11 +54,13 @@ int main()
 
     int count = sizeof(filenames) / sizeof(*filenames);
     for (int i = 0; i < count; i++) {
-        PDF_Info info = read_pdf_info(filenames[i]);
+        PDF_Info *info = read_pdf_info(filenames[i]);
         printf("Filename: %s\n", filenames[i]);
-        printf("Magic code: %.5s\n", info.magic_code);
-        printf("PDF version: %d.%d\n", info.major_version, info.minor_version);
-        printf("Page count: %d\n", info.page_count);
+        printf("Magic code: %.5s\n", info->magic_code);
+        printf("PDF version: %d.%d\n", info->major_version, info->minor_version);
+        printf("Page count: %d\n", info->page_count);
+
+        free(info);
         
         if (i != count - 1) {
             puts("");
