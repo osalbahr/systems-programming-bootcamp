@@ -3,7 +3,7 @@
 
 typedef struct PDF_Info {
     // %PDF-
-    char magic_code[5 + 1];
+    char magic_code[5];
     int major_version;
     int minor_version;
     int page_count;
@@ -22,7 +22,6 @@ PDF_Info read_pdf_info(char *filename)
     for (int i = 0; i < 5; i++) {
         info.magic_code[i] = getc(fp);
     }
-    info.magic_code[5] = '\0';
 
     fscanf(fp, "%d.%d", &info.major_version, &info.minor_version);
 
@@ -57,7 +56,7 @@ int main()
     for (int i = 0; i < count; i++) {
         PDF_Info info = read_pdf_info(filenames[i]);
         printf("Filename: %s\n", filenames[i]);
-        printf("Magic code: %5s\n", info.magic_code);
+        printf("Magic code: %.5s\n", info.magic_code);
         printf("PDF version: %d.%d\n", info.major_version, info.minor_version);
         printf("Page count: %d\n", info.page_count);
         
