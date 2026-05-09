@@ -57,3 +57,24 @@ Example:
 % ./read-into-heap 
 Initials = OA, Age = 99
 ```
+
+### Project 4: PDF Reader
+
+Source code: [pdf-reader.c](project/04/pdf-reader.c)
+
+Description: Read PDF version and page count as per the PDF specification into a struct and display the information.
+
+Example:
+
+```console
+% ./pdf-reader 
+Filename: Thompson_1984_ReflectionsonTrustingTrust.pdf
+Magic code: %PDF-
+PDF version: 1.3
+Page count: 3
+
+Filename: To the Budget Council concerning Haskell.pdf
+Magic code: %PDF-
+PDF version: 1.3
+Page count: 2
+````
