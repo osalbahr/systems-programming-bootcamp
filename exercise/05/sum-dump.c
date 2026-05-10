@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int values = 0x3b9dff;
 
@@ -14,6 +15,11 @@ int main()
 
     // raw function
     FILE *fp = fopen("sum.code", "wb");
+
+    if (!fp) {
+        printf("Could not open 'sum.code'\n");
+        exit(1);
+    }
 
     for (;;) {
         printf("%p -> %02x\n", sum_code, *sum_code);
