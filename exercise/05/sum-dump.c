@@ -13,7 +13,7 @@ int main()
     unsigned int code_size = 0;
 
     // raw function
-    FILE *fp = fopen("sum.code", "rb");
+    FILE *fp = fopen("sum.code", "wb");
 
     for (;;) {
         printf("%p -> %02x\n", sum_code, *sum_code);
