@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     }
 
     int split_count = atoi(argv[2]);
-    if (split_count <= 1) {
+    if (split_count <= 1 || split_count > 16) {
         printf("Invalid count %d\n", split_count);
         exit(1);
     }
