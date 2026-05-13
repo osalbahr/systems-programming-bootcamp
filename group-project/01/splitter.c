@@ -99,7 +99,6 @@ void merge(char *filename)
                 exit(1);
             }
         }
-        
     }
 
     FILE *output_fp = fopen(pmd->filename,"wb");
