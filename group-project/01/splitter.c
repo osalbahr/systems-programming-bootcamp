@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+#define PARTITION_ARG_COUNT 4
+#define MERGE_ARG_COUNT 3
+
 typedef struct PMD {
     char filename[128];
     int split_count;
@@ -9,13 +12,8 @@ typedef struct PMD {
     int last_block_size;
 } PMD;
 
-int main(int argc, char *argv[])
+void partition(char *argv[])
 {
-    if (argc != 3) {
-        printf("Usage: %s <filename> <count>\n", argv[0]);
-        exit(1);
-    }
-
     int split_count = atoi(argv[2]);
     if (split_count <= 1 || split_count > 16) {
         printf("Invalid count %d\n", split_count);
@@ -48,4 +46,46 @@ int main(int argc, char *argv[])
     }
 
     free(buffer);
+
+    PMD pmd;
+    strcpy(pmd.filename, filename);
+    pmd.split_count = split_count;
+    pmd.block_size = block_size;
+    pmd.last_block_size = fileInfo.st_size - (block_size * (split_count - 1));
+
+    char metadata_filename[1024];
+    sprintf(metadata_filename, "%s.pmd", filename);
+    FILE *metadata_fp = fopen(metadata_filename, "wb");
+
+    if (metadata_fp == NULL) {
+        printf("Cannot open '%s'.\n", metadata_filename);
+        exit(1);
+    }
+
+    fwrite(&pmd, sizeof(PMD), 1, metadata_fp);
+    fclose(metadata_fp);
+}
+
+void merge(char *filename)
+{
+
+}
+
+int main(int argc, char *argv[])
+{
+    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT) {
+        printf("Usage: %s -p <filename> <count>\n", argv[0]);
+        printf("Usage: %s -m <filename>\n", argv[0]);
+        exit(1);
+    }
+
+    if (argc == PARTITION_ARG_COUNT && strcmp(argv[1], "-p") == 0) {
+        partition(argv);
+    } else if (argc == MERGE_ARG_COUNT && strcmp(argv[1], "-m") == 0) {
+        merge(argv[2]);
+    } else {
+        printf("Usage: %s -p <filename> <count>\n", argv[0]);
+        printf("Usage: %s -m <filename>\n", argv[0]);
+        exit(1);
+    }
 }
