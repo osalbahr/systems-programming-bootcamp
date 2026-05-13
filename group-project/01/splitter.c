@@ -71,6 +71,12 @@ void merge(char *filename)
 {
     PMD pmd;
     FILE *pmd_fp = fopen(filename, "rb");
+
+    if (pmd_fp == NULL) {
+        printf("Cannot open '%s'\n", filename);
+        exit(1);
+    }
+
     fread(&pmd, sizeof(PMD), 1, pmd_fp);
     fclose(pmd_fp);
 
