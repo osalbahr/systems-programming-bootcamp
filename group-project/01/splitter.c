@@ -2,6 +2,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
+typedef struct PMD {
+    char filename[128];
+    int split_count;
+    int block_size;
+    int last_block_size;
+} PMD;
+
 int main(int argc, char *argv[])
 {
     if (argc != 3) {
@@ -31,7 +38,6 @@ int main(int argc, char *argv[])
     
     for(int i = 0; i < split_count; i++){
         size_t bytes_read = fread(buffer, 1, block_size, fp);
-        printf("bytes_read = %zu\n", bytes_read);
 
         char output_filename[1024];
         sprintf(output_filename, "%s.%d", filename, i);
