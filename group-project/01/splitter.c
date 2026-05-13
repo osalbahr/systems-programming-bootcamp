@@ -4,7 +4,8 @@
 #include <string.h>
 
 #define PARTITION_ARG_COUNT 4
-#define MERGE_ARG_COUNT 3
+#define MERGE_ARG_COUNT 4
+#define MERGE_WITH_ROTATE_ARG_COUNT 6
 
 typedef struct PMD {
     char filename[128];
@@ -67,8 +68,14 @@ void partition(char *argv[])
     fclose(metadata_fp);
 }
 
-void merge(char *filename)
+void merge(int argc,char *argv[])
 {
+    char *filename = argv[2];
+    char *new_filename = argv[5];
+    int rotation = 0;
+    if(argc == 6)
+        rotation = atoi(argv[4]);
+
     PMD pmd;
     FILE *pmd_fp = fopen(filename, "rb");
 
@@ -107,12 +114,12 @@ void merge(char *filename)
         }
     }
 
-    FILE *output_fp = fopen(pmd.filename,"wb");
+    FILE *output_fp = fopen(new_filename,"wb");
     char *buffer = (char *)malloc(pmd.block_size);
     for (int i = 0; i < pmd.split_count; i++) {
         char block_filename[256];
 
-        sprintf(block_filename, "%s.%d", pmd.filename, i);
+        sprintf(block_filename, "%s.%d", pmd.filename, (i + rotation) % pmd.split_count);
         FILE *block_fp = fopen(block_filename,"rb");
 
         if (i == pmd.split_count - 1) {
@@ -132,7 +139,7 @@ void merge(char *filename)
 
 int main(int argc, char *argv[])
 {
-    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT) {
+    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT && argc != MERGE_WITH_ROTATE_ARG_COUNT ) {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
         exit(1);
@@ -141,7 +148,9 @@ int main(int argc, char *argv[])
     if (argc == PARTITION_ARG_COUNT && strcmp(argv[1], "-p") == 0) {
         partition(argv);
     } else if (argc == MERGE_ARG_COUNT && strcmp(argv[1], "-m") == 0) {
-        merge(argv[2]);
+        merge(argc, argv);
+    } else if (argc == MERGE_WITH_ROTATE_ARG_COUNT && strcmp(argv[3], "-r") == 0) {
+        merge(argc, argv);
     } else {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
