@@ -9,6 +9,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    int split_count = atoi(argv[2]);
+    if (split_count <= 1 || split_count > 16) {
+        printf("Invalid count %d\n", split_count);
+        exit(1);
+    }
+
     char *filename = argv[1];
 
     FILE *fp = fopen(filename, "rb");
@@ -17,18 +23,13 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    int split_count = atoi(argv[2]);
-    if (split_count <= 1 || split_count > 16) {
-        printf("Invalid count %d\n", split_count);
-        exit(1);
-    }
-
     struct stat fileInfo;
     fstat(fileno(fp), &fileInfo);
     int block_size = (fileInfo.st_size + split_count - 1) / split_count;
 
+    char *buffer = (char *)malloc(block_size);
+    
     for(int i = 0; i < split_count; i++){
-        char *buffer = (char *)malloc(block_size);
         size_t bytes_read = fread(buffer, 1, block_size, fp);
         printf("bytes_read = %zu\n", bytes_read);
 
@@ -39,4 +40,6 @@ int main(int argc, char *argv[])
         fwrite(buffer, 1, bytes_read, output);
         fclose(output);
     }
+
+    free(buffer);
 }
