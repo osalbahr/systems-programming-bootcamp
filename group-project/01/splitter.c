@@ -70,31 +70,30 @@ void partition(char *argv[])
 void merge(char *filename)
 {
     PMD *pmd = (PMD *)malloc(sizeof(PMD));
-    FILE *fp = fopen(filename, "rb");
-    fread(pmd, sizeof(PMD), 1, fp);
-    fclose(fp);
+    FILE *pmd_fp = fopen(filename, "rb");
+    fread(pmd, sizeof(PMD), 1, pmd_fp);
+    fclose(pmd_fp);
 
-    FILE *np = fopen(pmd->filename,"wb");
+    FILE *output_fp = fopen(pmd->filename,"wb");
     char *buffer = (char *)malloc(pmd->block_size);
-    for (int i = 0; i < pmd->split_count ; i++){
+    for (int i = 0; i < pmd->split_count; i++) {
         char par_files[256];
 
         sprintf(par_files,"%s.%d",pmd->filename,i);
-        FILE *pf = fopen(par_files,"rb");
-        
+        FILE *block_fp = fopen(par_files,"rb");
 
         if (i == pmd->split_count - 1) {
-            fread(buffer, 1, pmd->last_block_size, pf);
-            fwrite(buffer, 1, pmd->last_block_size, np);
+            fread(buffer, 1, pmd->last_block_size, block_fp);
+            fwrite(buffer, 1, pmd->last_block_size, output_fp);
         } else {
-            fread(buffer, 1, pmd->block_size, pf);
-            fwrite(buffer, 1, pmd->block_size, np);
+            fread(buffer, 1, pmd->block_size, block_fp);
+            fwrite(buffer, 1, pmd->block_size, output_fp);
         }
 
-        fclose(pf);
+        fclose(block_fp);
     }
 
-    fclose(np);
+    fclose(output_fp);
     free(buffer);
 }
 
