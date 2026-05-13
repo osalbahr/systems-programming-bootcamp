@@ -34,8 +34,8 @@ void partition(char *argv[])
     int block_size = (fileInfo.st_size + split_count - 1) / split_count;
 
     char *buffer = (char *)malloc(block_size);
-    
-    for(int i = 0; i < split_count; i++){
+
+    for (int i = 0; i < split_count; i++) {
         size_t bytes_read = fread(buffer, 1, block_size, fp);
 
         char output_filename[1024];
@@ -69,7 +69,9 @@ void partition(char *argv[])
 
 void merge(char *filename)
 {
-
+    PMD *pmd = (PMD *)malloc(sizeof(PMD));
+    FILE *fp = fopen(filename, "rb");
+    fread(pmd, sizeof(PMD), 1, fp);
 }
 
 int main(int argc, char *argv[])
