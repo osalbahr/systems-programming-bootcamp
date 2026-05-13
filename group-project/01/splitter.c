@@ -74,13 +74,17 @@ void merge(char *filename)
     fread(pmd, sizeof(PMD), 1, pmd_fp);
     fclose(pmd_fp);
 
+    for (int i = 0; i < pmd->split_count; i++) {
+
+    }
+
     FILE *output_fp = fopen(pmd->filename,"wb");
     char *buffer = (char *)malloc(pmd->block_size);
     for (int i = 0; i < pmd->split_count; i++) {
-        char par_files[256];
+        char block_filename[256];
 
-        sprintf(par_files,"%s.%d",pmd->filename,i);
-        FILE *block_fp = fopen(par_files,"rb");
+        sprintf(block_filename,"%s.%d",pmd->filename,i);
+        FILE *block_fp = fopen(block_filename,"rb");
 
         if (i == pmd->split_count - 1) {
             fread(buffer, 1, pmd->last_block_size, block_fp);
