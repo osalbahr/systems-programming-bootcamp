@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/stat.h>
+#include <string.h>
 
 #define PARTITION_ARG_COUNT 4
 #define MERGE_ARG_COUNT 3
@@ -14,13 +15,13 @@ typedef struct PMD {
 
 void partition(char *argv[])
 {
-    int split_count = atoi(argv[2]);
+    int split_count = atoi(argv[3]);
     if (split_count <= 1 || split_count > 16) {
         printf("Invalid count %d\n", split_count);
         exit(1);
     }
 
-    char *filename = argv[1];
+    char *filename = argv[2];
 
     FILE *fp = fopen(filename, "rb");
     if (fp == NULL) {
