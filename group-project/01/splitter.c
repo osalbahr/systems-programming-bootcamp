@@ -69,15 +69,15 @@ void partition(char *argv[])
 
 void merge(char *filename)
 {
-    PMD *pmd = (PMD *)malloc(sizeof(PMD));
+    PMD pmd;
     FILE *pmd_fp = fopen(filename, "rb");
-    fread(pmd, sizeof(PMD), 1, pmd_fp);
+    fread(&pmd, sizeof(PMD), 1, pmd_fp);
     fclose(pmd_fp);
-    
+
     // Validate files exist and of the right size
-    for (int i = 0; i < pmd->split_count; i++) {
+    for (int i = 0; i < pmd.split_count; i++) {
         char block_filename[256];
-        sprintf(block_filename, "%s.%d", pmd->filename, i);
+        sprintf(block_filename, "%s.%d", pmd.filename, i);
         FILE *block_fp = fopen(block_filename,"rb");
 
         if (block_fp == NULL) {
@@ -88,33 +88,33 @@ void merge(char *filename)
         struct stat fileInfo;
         fstat(fileno(block_fp), &fileInfo);
         
-        if (i == pmd->split_count - 1) {
-            if (fileInfo.st_size != pmd->last_block_size) {
+        if (i == pmd.split_count - 1) {
+            if (fileInfo.st_size != pmd.last_block_size) {
                 printf("File '%s' is of incorrect size\n", block_filename);
                 exit(1);
             }
         } else {
-            if (fileInfo.st_size != pmd->block_size) {
+            if (fileInfo.st_size != pmd.block_size) {
                 printf("File '%s' is of incorrect size\n", block_filename);
                 exit(1);
             }
         }
     }
 
-    FILE *output_fp = fopen(pmd->filename,"wb");
-    char *buffer = (char *)malloc(pmd->block_size);
-    for (int i = 0; i < pmd->split_count; i++) {
+    FILE *output_fp = fopen(pmd.filename,"wb");
+    char *buffer = (char *)malloc(pmd.block_size);
+    for (int i = 0; i < pmd.split_count; i++) {
         char block_filename[256];
 
-        sprintf(block_filename, "%s.%d", pmd->filename, i);
+        sprintf(block_filename, "%s.%d", pmd.filename, i);
         FILE *block_fp = fopen(block_filename,"rb");
 
-        if (i == pmd->split_count - 1) {
-            fread(buffer, 1, pmd->last_block_size, block_fp);
-            fwrite(buffer, 1, pmd->last_block_size, output_fp);
+        if (i == pmd.split_count - 1) {
+            fread(buffer, 1, pmd.last_block_size, block_fp);
+            fwrite(buffer, 1, pmd.last_block_size, output_fp);
         } else {
-            fread(buffer, 1, pmd->block_size, block_fp);
-            fwrite(buffer, 1, pmd->block_size, output_fp);
+            fread(buffer, 1, pmd.block_size, block_fp);
+            fwrite(buffer, 1, pmd.block_size, output_fp);
         }
 
         fclose(block_fp);
