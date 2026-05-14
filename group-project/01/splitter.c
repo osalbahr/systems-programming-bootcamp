@@ -3,6 +3,7 @@
 #include <sys/stat.h>
 #include <string.h>
 
+#define PARTITION_RANDOM_ARG_COUNT 6
 #define PARTITION_ARG_COUNT 4
 #define MERGE_ARG_COUNT 4
 #define MERGE_WITH_ROTATE_ARG_COUNT 6
@@ -12,14 +13,64 @@ typedef struct PMD {
     int split_count;
     int block_size;
     int last_block_size;
+    // 0 means original, 1 means random
+    unsigned short rand_positions;
+    int rand_count;
 } PMD;
 
-void partition(char *argv[])
+// 0 means original, 1 means random
+unsigned short randomize_positions(int zero_count, int one_count)
 {
+    int total_count = zero_count + one_count;
+
+    unsigned char *before_rand = malloc(sizeof(int) * total_count);
+    unsigned char *after_rand = malloc(sizeof(int) * total_count);
+
+    int idx = 0;
+    for (int i = 0; i < zero_count; i++) {
+        before_rand[idx++] = 0;
+    }
+
+    for (int i = 0; i < one_count; i++) {
+        before_rand[idx++] = 1;
+    }
+
+    // debugging
+    printf("before_rand = ");
+    for (int i = 0; i < total_count; i++) {
+        printf("%d", before_rand[i]);
+    }
+    puts("");
+    exit(1);
+}
+
+void partition(int argc , char *argv[])
+{
+    unsigned short rand_positions = 0x0;
+
     int split_count = atoi(argv[3]);
     if (split_count <= 1 || split_count > 16) {
         printf("Invalid count %d\n", split_count);
         exit(1);
+    }
+
+    int total_count = split_count;
+
+    int rand_count = 0;
+    if (argc == PARTITION_RANDOM_ARG_COUNT) {
+        rand_count = atoi(argv[5]);
+        if (rand_count <= 0) {
+            printf("Invalid random count %d\n", rand_count);
+            exit(1);
+        }
+
+        total_count = split_count + rand_count;
+        if (total_count > 16) {
+            printf("Invalid total count %d\n", total_count);
+            exit(1);
+        }
+
+        rand_positions = randomize_positions(split_count, rand_count);
     }
 
     char *filename = argv[2];
@@ -54,6 +105,8 @@ void partition(char *argv[])
     pmd.split_count = split_count;
     pmd.block_size = block_size;
     pmd.last_block_size = fileInfo.st_size - (block_size * (split_count - 1));
+    pmd.rand_positions = rand_positions;
+    pmd.rand_count = rand_count;
 
     char metadata_filename[1024];
     sprintf(metadata_filename, "%s.pmd", filename);
@@ -73,7 +126,7 @@ void merge(int argc,char *argv[])
     char *filename = argv[2];
     char *new_filename = argv[5];
     int rotation = 0;
-    if(argc == 6)
+    if(argc == MERGE_WITH_ROTATE_ARG_COUNT)
         rotation = atoi(argv[4]);
 
     PMD pmd;
@@ -139,21 +192,27 @@ void merge(int argc,char *argv[])
 
 int main(int argc, char *argv[])
 {
-    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT && argc != MERGE_WITH_ROTATE_ARG_COUNT ) {
+    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT && argc != MERGE_WITH_ROTATE_ARG_COUNT && argc != PARTITION_RANDOM_ARG_COUNT) {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
+        printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
+        printf("Usage: %s -m <filename> -r <rotate_count>\n", argv[0]);
         exit(1);
     }
 
-    if (argc == PARTITION_ARG_COUNT && strcmp(argv[1], "-p") == 0) {
-        partition(argv);
+    if (argc == PARTITION_RANDOM_ARG_COUNT && strcmp(argv[1], "-p") == 0 && strcmp(argv[4], "-R") == 0) {
+        partition(argc, argv);
+    } else if (argc == PARTITION_ARG_COUNT && strcmp(argv[1], "-p") == 0){
+        partition(argc, argv);
     } else if (argc == MERGE_ARG_COUNT && strcmp(argv[1], "-m") == 0) {
         merge(argc, argv);
-    } else if (argc == MERGE_WITH_ROTATE_ARG_COUNT && strcmp(argv[3], "-r") == 0) {
+    } else if (argc == MERGE_WITH_ROTATE_ARG_COUNT && strcmp(argv[1], "-m") == 0 && strcmp(argv[3], "-r") == 0) {
         merge(argc, argv);
     } else {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
+        printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
+        printf("Usage: %s -m <filename> -r <rotate_count>\n", argv[0]);
         exit(1);
     }
 }
