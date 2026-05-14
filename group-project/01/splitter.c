@@ -21,7 +21,6 @@ typedef struct PMD {
     int rand_count;
 } PMD;
 
-// 0 means original, 1 means random
 unsigned short randomize_positions(int zero_count, int one_count)
 {
     int total_count = zero_count + one_count;
