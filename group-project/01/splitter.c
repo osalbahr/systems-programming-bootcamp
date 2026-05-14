@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <stdbool.h>
+#include <time.h>
 
 #define PARTITION_RANDOM_ARG_COUNT 6
 #define PARTITION_ARG_COUNT 4
@@ -35,12 +37,32 @@ unsigned short randomize_positions(int zero_count, int one_count)
         before_rand[idx++] = 1;
     }
 
+    srand(time(NULL));
+    bool *has_been_picked = calloc(total_count, sizeof(bool));
+    for (int after_idx = 0; after_idx < total_count; after_idx++) {
+        for (;;) {
+            int before_idx = rand() % total_count;
+            if (!has_been_picked[before_idx]) {
+                after_rand[after_idx] = before_rand[before_idx];
+                has_been_picked[before_idx] = true;
+                break;
+            }
+        }
+    }
+
     // debugging
     printf("before_rand = ");
     for (int i = 0; i < total_count; i++) {
         printf("%d", before_rand[i]);
     }
     puts("");
+
+    printf("after_rand = ");
+    for (int i = 0; i < total_count; i++) {
+        printf("%d", after_rand[i]);
+    }
+    puts("");
+
     exit(1);
 }
 
