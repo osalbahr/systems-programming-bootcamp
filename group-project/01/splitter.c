@@ -7,7 +7,7 @@
 
 #define PARTITION_RANDOM_ARG_COUNT 6
 #define PARTITION_ARG_COUNT 4
-#define MERGE_ARG_COUNT 4
+#define MERGE_ARG_COUNT 3
 #define MERGE_WITH_ROTATE_ARG_COUNT 6
 
 typedef struct PMD {
@@ -50,20 +50,12 @@ unsigned short randomize_positions(int zero_count, int one_count)
         }
     }
 
-    // debugging
-    printf("before_rand = ");
+    unsigned short result = 0x0;
     for (int i = 0; i < total_count; i++) {
-        printf("%d", before_rand[i]);
+        result |= after_rand[i] * (1 << i);
     }
-    puts("");
 
-    printf("after_rand = ");
-    for (int i = 0; i < total_count; i++) {
-        printf("%d", after_rand[i]);
-    }
-    puts("");
-
-    exit(1);
+    return result;
 }
 
 void partition(int argc , char *argv[])
@@ -109,14 +101,23 @@ void partition(int argc , char *argv[])
 
     char *buffer = (char *)malloc(block_size);
 
-    for (int i = 0; i < split_count; i++) {
-        size_t bytes_read = fread(buffer, 1, block_size, fp);
-
+    for (int i = 0; i < total_count; i++) {
         char output_filename[1024];
         sprintf(output_filename, "%s.%d", filename, i);
-
         FILE *output = fopen(output_filename, "wb");
-        fwrite(buffer, 1, bytes_read, output);
+
+        // 0 means original, 1 means random
+        bool current_parity = rand_positions & (1 << i);
+        if (current_parity) {
+            for (int i = 0; i < block_size; i++) {
+                unsigned char random_byte = rand() & 0xFF;
+                fwrite(&random_byte, 1, 1, output);
+            }
+        } else {
+            size_t bytes_read = fread(buffer, 1, block_size, fp);
+            fwrite(buffer, 1, bytes_read, output);
+        }
+
         fclose(output);
     }
 
@@ -146,10 +147,6 @@ void partition(int argc , char *argv[])
 void merge(int argc,char *argv[])
 {
     char *filename = argv[2];
-    char *new_filename = argv[5];
-    int rotation = 0;
-    if(argc == MERGE_WITH_ROTATE_ARG_COUNT)
-        rotation = atoi(argv[4]);
 
     PMD pmd;
     FILE *pmd_fp = fopen(filename, "rb");
@@ -161,6 +158,14 @@ void merge(int argc,char *argv[])
 
     fread(&pmd, sizeof(PMD), 1, pmd_fp);
     fclose(pmd_fp);
+
+
+    char *new_filename = pmd.filename;
+    int rotation = 0;
+    if(argc == MERGE_WITH_ROTATE_ARG_COUNT) {
+        rotation = atoi(argv[4]);
+        new_filename = argv[5];
+    }
 
     // Validate files exist and of the right size
     for (int i = 0; i < pmd.split_count; i++) {
