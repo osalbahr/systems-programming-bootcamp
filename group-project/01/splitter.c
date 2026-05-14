@@ -9,6 +9,7 @@
 #define PARTITION_ARG_COUNT 4
 #define MERGE_ARG_COUNT 3
 #define MERGE_WITH_ROTATE_ARG_COUNT 6
+#define MERGE_RANDOM_ARG_COUNT 5
 
 typedef struct PMD {
     char filename[128];
@@ -159,16 +160,24 @@ void merge(int argc,char *argv[])
     fread(&pmd, sizeof(PMD), 1, pmd_fp);
     fclose(pmd_fp);
 
+    int total_count = pmd.split_count + pmd.rand_count;
 
     char *new_filename = pmd.filename;
     int rotation = 0;
-    if(argc == MERGE_WITH_ROTATE_ARG_COUNT) {
+    if (argc == MERGE_WITH_ROTATE_ARG_COUNT) {
         rotation = atoi(argv[4]);
         new_filename = argv[5];
     }
 
+    bool print_random = false;
+    if (argc == MERGE_RANDOM_ARG_COUNT) {
+        new_filename = argv[4];
+        print_random = true;
+    }
+
     // Validate files exist and of the right size
-    for (int i = 0; i < pmd.split_count; i++) {
+    int valid_count = 0;
+    for (int i = 0; i < total_count; i++) {
         char block_filename[256];
         sprintf(block_filename, "%s.%d", pmd.filename, i);
         FILE *block_fp = fopen(block_filename,"rb");
@@ -180,12 +189,23 @@ void merge(int argc,char *argv[])
 
         struct stat fileInfo;
         fstat(fileno(block_fp), &fileInfo);
+
+        bool is_random = pmd.rand_positions & (1 << i);
         
-        if (i == pmd.split_count - 1) {
-            if (fileInfo.st_size != pmd.last_block_size) {
-                printf("File '%s' is of incorrect size\n", block_filename);
-                exit(1);
+        if (!is_random) {
+            if (valid_count == pmd.split_count - 1) {
+                if (fileInfo.st_size != pmd.last_block_size) {
+                    printf("File '%s' is of incorrect size\n", block_filename);
+                    exit(1);
+                }
+            } else {
+                if (fileInfo.st_size != pmd.block_size) {
+                    printf("File '%s' is of incorrect size\n", block_filename);
+                    exit(1);
+                }
             }
+
+            valid_count++;
         } else {
             if (fileInfo.st_size != pmd.block_size) {
                 printf("File '%s' is of incorrect size\n", block_filename);
@@ -196,16 +216,27 @@ void merge(int argc,char *argv[])
 
     FILE *output_fp = fopen(new_filename,"wb");
     char *buffer = (char *)malloc(pmd.block_size);
-    for (int i = 0; i < pmd.split_count; i++) {
+
+    valid_count = 0;
+    for (int i = 0; i < total_count; i++) {
         char block_filename[256];
 
-        sprintf(block_filename, "%s.%d", pmd.filename, (i + rotation) % pmd.split_count);
+        sprintf(block_filename, "%s.%d", pmd.filename, (i + rotation) % total_count);
         FILE *block_fp = fopen(block_filename,"rb");
 
-        if (i == pmd.split_count - 1) {
-            fread(buffer, 1, pmd.last_block_size, block_fp);
-            fwrite(buffer, 1, pmd.last_block_size, output_fp);
-        } else {
+        bool is_random = pmd.rand_positions & (1 << i);
+
+        if (!is_random) {
+            if (valid_count == pmd.split_count - 1) {
+                fread(buffer, 1, pmd.last_block_size, block_fp);
+                fwrite(buffer, 1, pmd.last_block_size, output_fp);
+            } else {
+                fread(buffer, 1, pmd.block_size, block_fp);
+                fwrite(buffer, 1, pmd.block_size, output_fp);
+            }
+
+            valid_count++;
+        } else if (is_random && print_random) {
             fread(buffer, 1, pmd.block_size, block_fp);
             fwrite(buffer, 1, pmd.block_size, output_fp);
         }
@@ -219,11 +250,16 @@ void merge(int argc,char *argv[])
 
 int main(int argc, char *argv[])
 {
-    if (argc != PARTITION_ARG_COUNT && argc != MERGE_ARG_COUNT && argc != MERGE_WITH_ROTATE_ARG_COUNT && argc != PARTITION_RANDOM_ARG_COUNT) {
+    if (argc != PARTITION_ARG_COUNT
+        && argc != MERGE_ARG_COUNT
+        && argc != MERGE_WITH_ROTATE_ARG_COUNT
+        && argc != PARTITION_RANDOM_ARG_COUNT
+        && argc != MERGE_RANDOM_ARG_COUNT) {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
         printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
-        printf("Usage: %s -m <filename> -r <rotate_count>\n", argv[0]);
+        printf("Usage: %s -m <filename> -r <rotate_count> <new_filename>\n", argv[0]);
+        printf("Usage: %s -m <filename> -R <new_filename>\n", argv[0]);
         exit(1);
     }
 
@@ -235,11 +271,13 @@ int main(int argc, char *argv[])
         merge(argc, argv);
     } else if (argc == MERGE_WITH_ROTATE_ARG_COUNT && strcmp(argv[1], "-m") == 0 && strcmp(argv[3], "-r") == 0) {
         merge(argc, argv);
+    } else if (argc == MERGE_RANDOM_ARG_COUNT && strcmp(argv[1], "-m") == 0 && strcmp(argv[3], "-R") == 0) {
+        merge(argc, argv);
     } else {
         printf("Usage: %s -p <filename> <count>\n", argv[0]);
         printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
-        printf("Usage: %s -m <filename> -r <rotate_count>\n", argv[0]);
+        printf("Usage: %s -m <filename> -r <rotate_count> <new_filename>\n", argv[0]);
         exit(1);
     }
 }
