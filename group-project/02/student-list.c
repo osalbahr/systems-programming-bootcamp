@@ -32,8 +32,8 @@ void print_students(Student *head)
     }
 }
 
-Student *insert_student_first(Student *head, Student *new_head){
-    
+Student *insert_student_first(Student *head, Student *new_head)
+{
     if (head == NULL) {
         return new_head;
     }
