@@ -124,6 +124,7 @@ void partition(int argc , char *argv[])
         fclose(output);
     }
 
+    fclose(fp);
     free(buffer);
 
     PMD pmd;
