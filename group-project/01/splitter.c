@@ -255,19 +255,6 @@ void merge(int argc,char *argv[])
 
 int main(int argc, char *argv[])
 {
-    if (argc != PARTITION_ARG_COUNT
-        && argc != MERGE_ARG_COUNT
-        && argc != MERGE_WITH_ROTATE_ARG_COUNT
-        && argc != PARTITION_RANDOM_ARG_COUNT
-        && argc != MERGE_RANDOM_ARG_COUNT) {
-        printf("Usage: %s -p <filename> <count>\n", argv[0]);
-        printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
-        printf("Usage: %s -m <filename>\n", argv[0]);
-        printf("Usage: %s -m <filename> -r <rotate_count> <new_filename>\n", argv[0]);
-        printf("Usage: %s -m <filename> -R <new_filename>\n", argv[0]);
-        exit(1);
-    }
-
     if (argc == PARTITION_RANDOM_ARG_COUNT && strcmp(argv[1], "-p") == 0 && strcmp(argv[4], "-R") == 0) {
         partition(argc, argv);
     } else if (argc == PARTITION_ARG_COUNT && strcmp(argv[1], "-p") == 0){
@@ -283,6 +270,7 @@ int main(int argc, char *argv[])
         printf("Usage: %s -p <filename> <count> -R <rand_count>\n", argv[0]);
         printf("Usage: %s -m <filename>\n", argv[0]);
         printf("Usage: %s -m <filename> -r <rotate_count> <new_filename>\n", argv[0]);
+        printf("Usage: %s -m <filename> -R <new_filename>\n", argv[0]);
         exit(1);
     }
 }
