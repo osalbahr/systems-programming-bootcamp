@@ -14,9 +14,9 @@ struct Student {
 
 Student *create_student(int id, const char *name, int age)
 {   
-    Student *student = (Student*)malloc(sizeof(Student));
+    Student *student = (Student *)malloc(sizeof(Student));
     student->id = id;
-    student->name = (char*)malloc(strlen(name) + 1);
+    student->name = (char *)malloc(strlen(name) + 1);
     strcpy(student->name, name);
     student->age = age;
     student->next = NULL;
@@ -30,7 +30,6 @@ void print_students(Student *head)
     for (Student *s = head; s != NULL; s = s->next) {
         printf("id: %d, name: %s, age: %d\n", s->id, s->name, s->age);
     }
-    
 }
 
 void insert_student_last(Student *head, Student *last)
