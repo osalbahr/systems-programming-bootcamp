@@ -44,10 +44,10 @@ Student *insert_student_first(Student *head, Student *new_head)
         ptr = ptr->next;
     }
 
-    if (ptr == NULL){
+    if (ptr == NULL) {
         new_head->next = head;
     } else {
-        printf("student number %d is already in the list\n",new_head->id);
+        printf("student number %d is already in the list\n", new_head->id);
     }
 
     return new_head;
