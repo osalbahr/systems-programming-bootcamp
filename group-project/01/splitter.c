@@ -55,6 +55,9 @@ unsigned short randomize_positions(int zero_count, int one_count)
         result |= after_rand[i] * (1 << i);
     }
 
+    free(before_rand);
+    free(after_rand);
+
     return result;
 }
 
@@ -188,6 +191,8 @@ void merge(int argc,char *argv[])
 
         struct stat fileInfo;
         fstat(fileno(block_fp), &fileInfo);
+
+        fclose(block_fp);
 
         bool is_random = pmd.rand_positions & (1 << i);
         
