@@ -50,6 +50,8 @@ unsigned short randomize_positions(int zero_count, int one_count)
         }
     }
 
+    free(has_been_picked);
+
     unsigned short result = 0x0;
     for (int i = 0; i < total_count; i++) {
         result |= after_rand[i] * (1 << i);
