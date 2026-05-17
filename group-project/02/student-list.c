@@ -32,6 +32,27 @@ void print_students(Student *head)
     }
 }
 
+Student *insert_student_first(Student *head, Student *new_head){
+    
+    if (head == NULL) {
+        return new_head;
+    }
+
+    Student *ptr = head;
+
+    while (ptr != NULL && ptr->id != new_head->id) {
+        ptr = ptr->next;
+    }
+
+    if (ptr == NULL){
+        new_head->next = head;
+    } else {
+        printf("student number %d is already in the list\n",new_head->id);
+    }
+
+    return new_head;
+}
+
 void insert_student_last(Student *head, Student *last)
 {
     if (head == NULL) {
@@ -73,11 +94,12 @@ int main()
     Student *s3 = create_student(2, "C", 17);
     insert_student_last(head, s3);
     Student *s4 = create_student(3, "D", 18);
-    insert_student_last(head, s4);
+
     print_students(head);
 
     puts("-----");
 
     update_student_age(head, 2, 19);
+    head = insert_student_first(head,s4);
     print_students(head);
 }
