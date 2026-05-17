@@ -54,7 +54,7 @@ void update_student_age(Student *head, int id, int new_age)
 
     Student *s = head;
 
-    while(s != NULL && s->id != id){
+    while (s != NULL && s->id != id) {
         s = s->next;
     }
 
