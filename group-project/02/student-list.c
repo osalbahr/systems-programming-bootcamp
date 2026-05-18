@@ -100,6 +100,39 @@ void update_student_age(Student *head, int id, int new_age)
     }
 }
 
+Student *delete_student(Student *head, int id)
+{
+    Student *s = head;
+    while (s != NULL && s->id != id) {
+        s = s->next;
+    }
+
+    if (s == NULL) {
+        printf("The student number %d doesn't exist\n", id);
+        return head;
+    }
+
+    if (s == head) {
+        Student *new_head = head->next;
+        free(s->name);
+        free(s);
+        return new_head;
+    }
+
+    Student *previous = s->previous;
+    Student *next = s->next;
+    previous->next = next;
+
+    if (next) {
+        next->previous = previous;
+    }
+
+    free(s->name);
+    free(s);
+
+    return head;
+}
+
 int main()
 {
     Student *head = create_student(0, "A", 15);
@@ -115,5 +148,9 @@ int main()
 
     update_student_age(head, 2, 19);
     head = insert_student_first(head,s4);
+    print_students(head);
+
+    puts("-----");
+    head = delete_student(head, 0);
     print_students(head);
 }
