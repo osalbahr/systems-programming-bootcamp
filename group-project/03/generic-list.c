@@ -68,6 +68,22 @@ bool list_add_first(List *lst, Node *n)
     return true;
 }
 
+bool list_add_last(List *lst, Node *n)
+{
+    if (lst->first == NULL) {
+        lst->first = n;
+        lst->last = n;
+        lst->count++;
+        return true;
+    }
+
+    lst->last->next = n;
+    n->previous = lst->last;
+    lst->last = n;
+    lst->count++;
+    return true;
+}
+
 void print_student(Student *s)
 {
     printf("data = (Student{'%s', %d})\n", s->name, s->age);
@@ -112,19 +128,19 @@ int main()
     Flags num_flags;
     num_flags.type = 0b01;
     Node *num_node = create_node(&num, sizeof(int), num_flags);
-    list_add_first(lst, num_node);
+    list_add_last(lst, num_node);
 
     char *name = "Hello";
     Flags name_flags;
     name_flags.type = 0b10;
     Node *name_node = create_node(name, strlen(name) + 1, name_flags);
-    list_add_first(lst, name_node);
+    list_add_last(lst, name_node);
 
     Student *s = create_student("Ali", 15);
     Flags student_flags;
     student_flags.type = 0b11;
     Node *student_node = create_node(s, sizeof(Student), student_flags);
-    list_add_first(lst, student_node);
+    list_add_last(lst, student_node);
 
     print_list(lst);
 }
