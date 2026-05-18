@@ -81,6 +81,29 @@ void insert_student_last(Student *head, Student *last)
     ptr->next = last;
 }
 
+void insert_after_id(Student *head, Student *new_student, int id)
+{
+    Student *ptr = head;
+
+    while (ptr != NULL && ptr->id != id) {
+        ptr = ptr->next;
+    }
+
+    if (ptr == NULL) {
+        printf("student number %d is already in the list\n", id);
+        return;
+    }
+
+    new_student->next = ptr->next;
+    new_student->previous = ptr;
+
+    if (ptr->next != NULL) {
+        ptr->next->previous = new_student;
+    }
+
+    ptr->next = new_student;
+}
+
 void update_student_age(Student *head, int id, int new_age)
 {
     if (head == NULL) {
@@ -152,5 +175,9 @@ int main()
 
     puts("-----");
     head = delete_student(head, 0);
+    print_students(head);
+
+    puts("-----");
+    insert_after_id(head, create_student(10, "F", 55), 1);
     print_students(head);
 }
