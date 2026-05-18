@@ -6,6 +6,7 @@
 typedef struct Flags {
     // 01 -> int
     // 10 -> string
+    // 11 -> Student
     unsigned int type:3;
 } Flags;
 
@@ -25,6 +26,11 @@ typedef struct List {
     int count;
 } List;
 
+typedef struct Student {
+    char *name;
+    int age;
+} Student;
+
 Node *create_node(void *data, int size, Flags flags)
 {
     Node *n = (Node *)malloc(sizeof(Node));
@@ -35,6 +41,15 @@ Node *create_node(void *data, int size, Flags flags)
     n->previous = NULL;
     n->flags = flags;
     return n;
+}
+
+Student *create_student(char *name, int age)
+{
+    Student *s = (Student *)malloc(sizeof(Student));
+    s->name = (char *)malloc(strlen(name) + 1);
+    strcpy(s->name, name);
+    s->age = age;
+    return s;
 }
 
 bool list_add_first(List *lst, Node *n)
@@ -53,6 +68,11 @@ bool list_add_first(List *lst, Node *n)
     return true;
 }
 
+void print_student(Student *s)
+{
+    printf("data = (Student{'%s', %d})\n", s->name, s->age);
+}
+
 void print_node(Node *n)
 {
     switch (n->flags.type) {
@@ -61,6 +81,9 @@ void print_node(Node *n)
             break;
         case 0b10:
             printf("data = ('%s')\n", (char *)n->data);
+            break;
+        case 0b11:
+            print_student((Student *)n->data);
             break;
     }
 }
@@ -96,6 +119,12 @@ int main()
     name_flags.type = 0b10;
     Node *name_node = create_node(name, strlen(name) + 1, name_flags);
     list_add_first(lst, name_node);
+
+    Student *s = create_student("Ali", 15);
+    Flags student_flags;
+    student_flags.type = 0b11;
+    Node *student_node = create_node(s, sizeof(Student), student_flags);
+    list_add_first(lst, student_node);
 
     print_list(lst);
 }
