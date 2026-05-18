@@ -123,7 +123,7 @@ List *create_list()
 int main()
 {
     List *lst = create_list();
-    
+
     int num = 5;
     Flags num_flags;
     num_flags.type = 0b01;
