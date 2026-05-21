@@ -26,16 +26,22 @@ void hash(char *filename)
         hash[i % 32] ^= ch;
     }
 
-    char dirname[2 + 1];
-    sprintf(dirname, "%02x", hash[0]);
+    if (mkdir("data", 0777) == -1 && errno != EEXIST) {
+        printf("Error: Cannot create data/\n");
+        exit(1);
+    }
+
+    char dirname[7 + 1];
+    sprintf(dirname, "data/%02x", hash[0]);
 
     if (mkdir(dirname, 0777) == -1 && errno != EEXIST) {
         printf("Error: Cannot create directory '%s'\n", dirname);
         exit(1);
     }
 
-    char output_filename[2 + 1 + 31 * 2 + 1];
-    sprintf(output_filename, "%02x/", hash[0]);
+    // data/hash[0]/hash[1..31]
+    char output_filename[8 + 31 * 2 + 1];
+    sprintf(output_filename, "data/%02x/", hash[0]);
     for (int i = 1; i < 32; i++) {
         char hex[2 + 1];
         sprintf(hex, "%02x", hash[i]);
@@ -65,8 +71,37 @@ void hash(char *filename)
 
 void unhash(int argc, char *argv[])
 {
-    printf("unhash() not implemented\n");
-    exit(1);
+    char *hash_string = argv[2];
+    char *filename = (char *)malloc(strlen(hash_string + 2));
+    filename[0] = '\0';
+    strncat(filename, hash_string, 2);
+    strcat(filename, "/");
+    strcat(filename, hash_string + 2);
+
+    FILE *input = fopen(filename, "wb");
+    if (input == NULL) {
+        printf("Error: Cannot open file '%s'\n", filename);
+        exit(1);
+    }
+
+    unsigned char hash[32];
+    for (int i = 0; i < 32; i++) {
+        char hex[2 + 1];
+        hex[0] = hash_string[i * 2];
+        hex[1] = hash_string[i * 2 + 1];
+        hex[2] = '\0';
+
+        hash[i] = strtoul(hex, NULL, 16);
+    }
+
+    // for (int i = 0;; i++) {
+    //     unsigned char ch = (unsigned char)getc(input);
+    //     if (feof(input)) {
+    //         break;
+    //     }
+
+    //     fwrite(
+    // }
 }
 
 int main(int argc, char *argv[])
