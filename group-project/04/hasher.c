@@ -67,18 +67,21 @@ void hash(char *filename)
 
     fclose(input);
     fclose(output);
+
+    printf("%s\n", output_filename);
 }
 
 void unhash(int argc, char *argv[])
 {
     char *hash_string = argv[2];
-    char *filename = (char *)malloc(strlen(hash_string + 2));
+    char *filename = (char *)malloc(strlen(hash_string + 6 + 1));
     filename[0] = '\0';
+    strcat(filename, "data/");
     strncat(filename, hash_string, 2);
     strcat(filename, "/");
     strcat(filename, hash_string + 2);
 
-    FILE *input = fopen(filename, "wb");
+    FILE *input = fopen(filename, "rb");
     if (input == NULL) {
         printf("Error: Cannot open file '%s'\n", filename);
         exit(1);
@@ -94,14 +97,23 @@ void unhash(int argc, char *argv[])
         hash[i] = strtoul(hex, NULL, 16);
     }
 
-    // for (int i = 0;; i++) {
-    //     unsigned char ch = (unsigned char)getc(input);
-    //     if (feof(input)) {
-    //         break;
-    //     }
+    FILE *output = stdout;
+    if (argc == UNHASH_FILE_ARGC) {
+        output = fopen(argv[4], "wb");
+    }
 
-    //     fwrite(
-    // }
+    for (int i = 0;; i++) {
+        unsigned char ch = (unsigned char)getc(input);
+        if (feof(input)) {
+            break;
+        }
+
+        ch ^= hash[i % 32];
+        fwrite(&ch, 1, 1, output);
+    }
+
+    fclose(input);
+    fclose(output);
 }
 
 int main(int argc, char *argv[])
